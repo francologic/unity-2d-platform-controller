@@ -1,13 +1,14 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class MovementController : MonoBehaviour
 {
     [Header("Run")]
     [Range(0.0f, 10.0f)]
-    public float speed = 5f;
-
+    public float moveSpeed = 5f;
+    [Range(0.0f, 10.0f)]
+    public float acceleration = 5f;
+    [Range(0.0f, 10.0f)]
+    public float deceleration = 5f;
 
     [Header("Jump")]
     [Range(0.0f, 10.0f)]
@@ -16,6 +17,9 @@ public class MovementController : MonoBehaviour
     public float fallForce = 2.5f;
     [Range(0.0f, 10.0f)]
     public float lowJumpForce = 2f;
+
+    //TODO Force Physics
+    //TODO Walljump
 
     private Rigidbody2D _rb;
 
@@ -28,8 +32,8 @@ public class MovementController : MonoBehaviour
     {
         float x = Input.GetAxis("Horizontal");
         float y = Input.GetAxis("Vertical");
-        Vector2 direction = new Vector2(x, y);
-        Run(direction);
+        Vector2 direction = new (x, y);
+        Run(direction.x);
         if(Input.GetButtonDown("Jump"))
         {
             Jump();
@@ -37,9 +41,14 @@ public class MovementController : MonoBehaviour
         VariableJump();
     }
 
-    private void Run(Vector2 direction)
+    private void Run(float xDirection)
     {
-        _rb.velocity = (new Vector2(direction.x * speed, _rb.velocity.y));
+        float targetSpeed = xDirection * moveSpeed;
+        float speedDifference = targetSpeed - _rb.velocity.x;
+        float accelerationRate = (Mathf.Abs(targetSpeed) > .01f) ? acceleration : deceleration;
+        float movement = Mathf.Pow(Mathf.Abs(speedDifference) * accelerationRate, 1) * Mathf.Sign(speedDifference);
+
+        _rb.AddForce(movement* Vector2.right);
     }
 
     private void Jump()
