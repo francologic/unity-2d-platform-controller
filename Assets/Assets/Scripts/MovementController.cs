@@ -3,12 +3,12 @@ using UnityEngine;
 public class MovementController : MonoBehaviour
 {
     [Header("Run")]
-    [Range(0.0f, 10.0f)]
-    public float moveSpeed = 5f;
-    [Range(0.0f, 10.0f)]
-    public float acceleration = 5f;
-    [Range(0.0f, 10.0f)]
-    public float deceleration = 5f;
+    [Range(0.0f, 20.0f)]
+    public float topSpeed = 5f;
+    [Range(0.0f, 5.0f)]
+    public float acceleration = 1f;
+    [Range(0.0f, 5.0f)]
+    public float breaking = 1f;
 
     [Header("Jump")]
     [Range(0.0f, 10.0f)]
@@ -43,12 +43,11 @@ public class MovementController : MonoBehaviour
 
     private void Run(float xDirection)
     {
-        float targetSpeed = xDirection * moveSpeed;
+        float targetSpeed = xDirection * topSpeed;
         float speedDifference = targetSpeed - _rb.velocity.x;
-        float accelerationRate = (Mathf.Abs(targetSpeed) > .01f) ? acceleration : deceleration;
-        float movement = Mathf.Pow(Mathf.Abs(speedDifference) * accelerationRate, 1) * Mathf.Sign(speedDifference);
+        float accelerationRate = (Mathf.Abs(targetSpeed) > .01f) ? acceleration : breaking;
 
-        _rb.AddForce(movement* Vector2.right);
+        _rb.AddForce(speedDifference * accelerationRate * Vector2.right);
     }
 
     private void Jump()
