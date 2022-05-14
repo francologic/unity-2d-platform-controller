@@ -25,12 +25,15 @@ public class MovementController : MonoBehaviour
     public int extraJumps = 1;
     [Range(0.0f, 1.0f)]
     public float minimumTimeToJumpCut = .5f;
+    [Range(0.0f, 1.0f)]
+    public float jumpBuffer = .1f;
 
     private Rigidbody2D _rb;
     private bool _isGrounded;
     private bool _canJumpCut = false;
-    private float _jumpTimer = 0f;
+    private float _jumpCutTimer = 0f;
     private int _remainingJumps;
+    private float _jumpBufferTimer;
 
     private void Awake()
     {
@@ -39,24 +42,36 @@ public class MovementController : MonoBehaviour
 
     private void Update()
     {
+        _jumpBufferTimer -= Time.deltaTime;
+        _jumpCutTimer -= Time.deltaTime;
         UpdatesCheck();
-        Move(Input.GetAxis("Horizontal"));
-        if (Input.GetButtonDown("Jump") && _isGrounded)
+
+        #region Jump Button Verification
+        if ((Input.GetButtonDown("Jump") || _jumpBufferTimer > 0) && _isGrounded && _rb.velocity.y <= 0)
         {
+            _jumpBufferTimer = 0;
             Jump(jumpForce);
         }
-        if(Input.GetButtonDown("Jump") && !_isGrounded && _remainingJumps > 0){
-            Jump(extraJumpForce);
-            _remainingJumps --;
+        else if (Input.GetButtonDown("Jump") && _remainingJumps == 0)
+        {
+            _jumpBufferTimer = jumpBuffer;
         }
-        if (!Input.GetButton("Jump") && _canJumpCut && _rb.velocity.y > 0 && _jumpTimer <= 0)
+        if (Input.GetButtonDown("Jump") && !_isGrounded && _remainingJumps > 0)
+        {
+            _remainingJumps--;
+            Jump(extraJumpForce);
+        }
+        if (!Input.GetButton("Jump") && _canJumpCut && _rb.velocity.y > 0 && _jumpCutTimer <= 0)
         {
             JumpCut();
         }
-        if (_jumpTimer > 0)
-        {
-            _jumpTimer -= Time.deltaTime;
-        }
+        #endregion
+
+    }
+
+    private void FixedUpdate()
+    {
+        Move(Input.GetAxis("Horizontal"));
     }
 
     private void OnDrawGizmos()
@@ -104,9 +119,9 @@ public class MovementController : MonoBehaviour
         if (_rb.velocity.y < 0) force -= _rb.velocity.y;
 
         _rb.AddForce(Vector2.up * force, ForceMode2D.Impulse);
-        _jumpTimer = minimumTimeToJumpCut;
+        _jumpCutTimer = minimumTimeToJumpCut;
         _canJumpCut = true;
-        
+
     }
 
     private void JumpCut()
