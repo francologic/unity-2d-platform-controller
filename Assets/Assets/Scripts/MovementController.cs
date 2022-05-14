@@ -27,8 +27,9 @@ public class MovementController : MonoBehaviour
     //TODO Walljump
 
     private Rigidbody2D _rb;
-    private bool isGrounded;
-    private bool canJumpCut = false;
+    private bool _isGrounded;
+    private bool _canJumpCut = false;
+    private float _jumpTimer = 0f;
 
     private void Awake()
     {
@@ -39,13 +40,17 @@ public class MovementController : MonoBehaviour
     {
         UpdatesCheck();
         Run(Input.GetAxis("Horizontal"));
-        if (Input.GetButtonDown("Jump") && isGrounded)
+        if (Input.GetButtonDown("Jump") && _isGrounded)
         {
             Jump();
         }
-        if(Input.GetButtonUp("Jump") && canJumpCut && _rb.velocity.y > 0)
+        if (!Input.GetButton("Jump") && _canJumpCut && _rb.velocity.y > 0 && _jumpTimer <= 0)
         {
-            JumpCut();  
+            JumpCut();
+        }
+        if (_jumpTimer > 0)
+        {
+            _jumpTimer -= Time.deltaTime;
         }
     }
 
@@ -78,12 +83,12 @@ public class MovementController : MonoBehaviour
     {
         if (Physics2D.OverlapBox(groundCheckPoint.position, groundCheckSize, 0, groundLayer))
         {
-            isGrounded = true;
+            _isGrounded = true;
 
         }
         else
         {
-            isGrounded = false;
+            _isGrounded = false;
         }
     }
 
@@ -93,12 +98,13 @@ public class MovementController : MonoBehaviour
         if (_rb.velocity.y < 0) force -= _rb.velocity.y;
 
         _rb.AddForce(Vector2.up * force, ForceMode2D.Impulse);
-        canJumpCut = true;
+        _jumpTimer = minimumTimeToJumpCut;
+        _canJumpCut = true;
     }
 
     private void JumpCut()
     {
         _rb.AddForce(Vector2.down * _rb.velocity.y, ForceMode2D.Impulse);
-        canJumpCut = false;
+        _canJumpCut = false;
     }
 }
