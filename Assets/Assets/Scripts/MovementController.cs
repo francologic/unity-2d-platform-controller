@@ -27,6 +27,8 @@ public class MovementController : MonoBehaviour
     public float minimumTimeToJumpCut = .5f;
     [Range(0.0f, 1.0f)]
     public float jumpBuffer = .1f;
+    [Range(0.0f, 1.0f)]
+    public float coyoteTime = .1f;
 
     private Rigidbody2D _rb;
     private bool _isGrounded;
@@ -34,6 +36,7 @@ public class MovementController : MonoBehaviour
     private float _jumpCutTimer = 0f;
     private int _remainingJumps;
     private float _jumpBufferTimer;
+    private float _jumpCoyoteTimer;
 
     private void Awake()
     {
@@ -44,11 +47,13 @@ public class MovementController : MonoBehaviour
     {
         _jumpBufferTimer -= Time.deltaTime;
         _jumpCutTimer -= Time.deltaTime;
+        _jumpCoyoteTimer -= Time.deltaTime;
         UpdatesCheck();
 
         #region Jump Button Verification
-        if ((Input.GetButtonDown("Jump") || _jumpBufferTimer > 0) && _isGrounded && _rb.velocity.y <= 0)
+        if ((Input.GetButtonDown("Jump") || _jumpBufferTimer > 0) && (_isGrounded || _jumpCoyoteTimer > 0) && _rb.velocity.y <= 0)
         {
+            _jumpCoyoteTimer = 0;
             _jumpBufferTimer = 0;
             Jump(jumpForce);
         }
@@ -90,6 +95,7 @@ public class MovementController : MonoBehaviour
         }
         else
         {
+            if(_isGrounded) _jumpCoyoteTimer = coyoteTime;
             _isGrounded = false;
         }
     }
