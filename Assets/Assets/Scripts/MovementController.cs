@@ -20,16 +20,17 @@ public class MovementController : MonoBehaviour
     [Header("Jump")]
     [Range(0.0f, 10.0f)]
     public float jumpForce = 5f;
+    [Range(0.0f, 10.0f)]
+    public float extraJumpForce = 5f;
+    public int extraJumps = 1;
     [Range(0.0f, 1.0f)]
     public float minimumTimeToJumpCut = .5f;
-
-    //TODO Force Physics
-    //TODO Walljump
 
     private Rigidbody2D _rb;
     private bool _isGrounded;
     private bool _canJumpCut = false;
     private float _jumpTimer = 0f;
+    private int _remainingJumps;
 
     private void Awake()
     {
@@ -39,10 +40,14 @@ public class MovementController : MonoBehaviour
     private void Update()
     {
         UpdatesCheck();
-        Run(Input.GetAxis("Horizontal"));
+        Move(Input.GetAxis("Horizontal"));
         if (Input.GetButtonDown("Jump") && _isGrounded)
         {
-            Jump();
+            Jump(jumpForce);
+        }
+        if(Input.GetButtonDown("Jump") && !_isGrounded && _remainingJumps > 0){
+            Jump(extraJumpForce);
+            _remainingJumps --;
         }
         if (!Input.GetButton("Jump") && _canJumpCut && _rb.velocity.y > 0 && _jumpTimer <= 0)
         {
@@ -61,8 +66,21 @@ public class MovementController : MonoBehaviour
         Gizmos.DrawWireCube(wireframe, groundCheckSize);
     }
 
-    #region Run
-    private void Run(float direction)
+    private void UpdatesCheck()
+    {
+        if (Physics2D.OverlapBox(groundCheckPoint.position, groundCheckSize, 0, groundLayer))
+        {
+            _isGrounded = true;
+            _remainingJumps = extraJumps;
+        }
+        else
+        {
+            _isGrounded = false;
+        }
+    }
+
+    #region Move
+    private void Move(float direction)
     {
         float targetSpeed = direction * topSpeed;
         float speedDifference = targetSpeed - _rb.velocity.x;
@@ -79,27 +97,16 @@ public class MovementController : MonoBehaviour
     }
     #endregion
 
-    private void UpdatesCheck()
+    #region Jump
+    private void Jump(float initialForce)
     {
-        if (Physics2D.OverlapBox(groundCheckPoint.position, groundCheckSize, 0, groundLayer))
-        {
-            _isGrounded = true;
-
-        }
-        else
-        {
-            _isGrounded = false;
-        }
-    }
-
-    private void Jump()
-    {
-        float force = jumpForce;
+        float force = initialForce;
         if (_rb.velocity.y < 0) force -= _rb.velocity.y;
 
         _rb.AddForce(Vector2.up * force, ForceMode2D.Impulse);
         _jumpTimer = minimumTimeToJumpCut;
         _canJumpCut = true;
+        
     }
 
     private void JumpCut()
@@ -107,4 +114,5 @@ public class MovementController : MonoBehaviour
         _rb.AddForce(Vector2.down * _rb.velocity.y, ForceMode2D.Impulse);
         _canJumpCut = false;
     }
+    #endregion
 }
