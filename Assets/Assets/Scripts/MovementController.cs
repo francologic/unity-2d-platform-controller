@@ -20,16 +20,15 @@ public class MovementController : MonoBehaviour
     [Header("Jump")]
     [Range(0.0f, 10.0f)]
     public float jumpForce = 5f;
-    [Range(0.0f, 10.0f)]
-    public float fallForce = 2.5f;
-    [Range(0.0f, 10.0f)]
-    public float lowJumpForce = 2f;
+    [Range(0.0f, 1.0f)]
+    public float minimumTimeToJumpCut = .5f;
 
     //TODO Force Physics
     //TODO Walljump
 
     private Rigidbody2D _rb;
     private bool isGrounded;
+    private bool canJumpCut = false;
 
     private void Awake()
     {
@@ -38,13 +37,23 @@ public class MovementController : MonoBehaviour
 
     private void Update()
     {
+        UpdatesCheck();
         Run(Input.GetAxis("Horizontal"));
-        Check();
-        if (Input.GetButtonDown("Jump"))
+        if (Input.GetButtonDown("Jump") && isGrounded)
         {
             Jump();
         }
-        VariableJump();
+        if(Input.GetButtonUp("Jump") && canJumpCut && _rb.velocity.y > 0)
+        {
+            JumpCut();  
+        }
+    }
+
+    private void OnDrawGizmos()
+    {
+        Vector3 wireframe = new(groundCheckPoint.position.x, groundCheckPoint.position.y, 0);
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireCube(wireframe, groundCheckSize);
     }
 
     #region Run
@@ -65,11 +74,12 @@ public class MovementController : MonoBehaviour
     }
     #endregion
 
-    private void Check()
+    private void UpdatesCheck()
     {
         if (Physics2D.OverlapBox(groundCheckPoint.position, groundCheckSize, 0, groundLayer))
         {
             isGrounded = true;
+
         }
         else
         {
@@ -79,19 +89,16 @@ public class MovementController : MonoBehaviour
 
     private void Jump()
     {
+        float force = jumpForce;
+        if (_rb.velocity.y < 0) force -= _rb.velocity.y;
 
-        _rb.velocity = Vector2.up * jumpForce;
+        _rb.AddForce(Vector2.up * force, ForceMode2D.Impulse);
+        canJumpCut = true;
     }
 
-    private void VariableJump()
+    private void JumpCut()
     {
-        if (_rb.velocity.y < 0)
-        {
-            _rb.velocity += Vector2.up * Physics2D.gravity.y * (fallForce - 1) * Time.deltaTime;
-        }
-        else if (_rb.velocity.y > 0 && !Input.GetButton("Jump"))
-        {
-            _rb.velocity += Vector2.up * Physics2D.gravity.y * (lowJumpForce - 1) * Time.deltaTime;
-        }
+        _rb.AddForce(Vector2.down * _rb.velocity.y, ForceMode2D.Impulse);
+        canJumpCut = false;
     }
 }
