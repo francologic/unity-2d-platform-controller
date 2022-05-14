@@ -2,11 +2,18 @@ using UnityEngine;
 
 public class MovementController : MonoBehaviour
 {
+    [Header("Checks")]
+    public LayerMask groundLayer;
+    public Transform groundCheckPoint;
+    public Vector2 groundCheckSize;
+
     [Header("Run")]
     [Range(0.0f, 20.0f)]
     public float topSpeed = 5f;
     [Range(0.0f, 5.0f)]
     public float acceleration = 1f;
+    [Range(0.0f, 5.0f)]
+    public float handling = 1f;
     [Range(0.0f, 5.0f)]
     public float breaking = 1f;
 
@@ -22,6 +29,7 @@ public class MovementController : MonoBehaviour
     //TODO Walljump
 
     private Rigidbody2D _rb;
+    private bool isGrounded;
 
     private void Awake()
     {
@@ -30,39 +38,60 @@ public class MovementController : MonoBehaviour
 
     private void Update()
     {
-        float x = Input.GetAxis("Horizontal");
-        float y = Input.GetAxis("Vertical");
-        Vector2 direction = new (x, y);
-        Run(direction.x);
-        if(Input.GetButtonDown("Jump"))
+        Run(Input.GetAxis("Horizontal"));
+        Check();
+        if (Input.GetButtonDown("Jump"))
         {
             Jump();
         }
         VariableJump();
     }
 
-    private void Run(float xDirection)
+    #region Run
+    private void Run(float direction)
     {
-        float targetSpeed = xDirection * topSpeed;
+        float targetSpeed = direction * topSpeed;
         float speedDifference = targetSpeed - _rb.velocity.x;
-        float accelerationRate = (Mathf.Abs(targetSpeed) > .01f) ? acceleration : breaking;
+        float power = GetControlPower(targetSpeed);
 
-        _rb.AddForce(speedDifference * accelerationRate * Vector2.right);
+        _rb.AddForce(speedDifference * power * Vector2.right);
+    }
+
+    private float GetControlPower(float targetSpeed)
+    {
+        if (Mathf.Abs(targetSpeed) < .01f) return breaking;
+        if (Mathf.Abs(_rb.velocity.x) > 0 && (Mathf.Sign(targetSpeed) != Mathf.Sign(_rb.velocity.x))) return handling;
+        return acceleration;
+    }
+    #endregion
+
+    private void Check()
+    {
+        if (Physics2D.OverlapBox(groundCheckPoint.position, groundCheckSize, 0, groundLayer))
+        {
+            isGrounded = true;
+        }
+        else
+        {
+            isGrounded = false;
+        }
     }
 
     private void Jump()
     {
+
         _rb.velocity = Vector2.up * jumpForce;
     }
 
     private void VariableJump()
     {
-        if(_rb.velocity.y < 0)
+        if (_rb.velocity.y < 0)
         {
             _rb.velocity += Vector2.up * Physics2D.gravity.y * (fallForce - 1) * Time.deltaTime;
-        } else if (_rb.velocity.y > 0 && !Input.GetButton("Jump"))
+        }
+        else if (_rb.velocity.y > 0 && !Input.GetButton("Jump"))
         {
             _rb.velocity += Vector2.up * Physics2D.gravity.y * (lowJumpForce - 1) * Time.deltaTime;
-        } 
+        }
     }
 }
