@@ -366,7 +366,7 @@ MonoBehaviour:
   minimumTimeToJumpCut: 0.05
   jumpBuffer: 0.1
   coyoteTime: 0.1
-  wallJumpForce: {x: 100, y: 10}
+  wallJumpForce: {x: 30, y: 15}
 --- !u!1 &1071601295
 GameObject:
   m_ObjectHideFlags: 0
