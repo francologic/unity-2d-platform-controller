@@ -6,6 +6,10 @@ public class MovementController : MonoBehaviour
     public LayerMask groundLayer;
     public Transform groundCheckPoint;
     public Vector2 groundCheckSize;
+    public Transform rightWallCheckPoint;
+    public Vector2 rightWallCheckSize;
+    public Transform leftWallCheckPoint;
+    public Vector2 leftWallCheckSize;
 
     [Header("Run")]
     [Range(0.0f, 20.0f)]
@@ -30,8 +34,13 @@ public class MovementController : MonoBehaviour
     [Range(0.0f, 1.0f)]
     public float coyoteTime = .1f;
 
+    [Header("Wall Jump")]
+    public Vector2 wallJumpForce = new(1, 1);
+
     private Rigidbody2D _rb;
     private bool _isGrounded;
+    private bool _isRightWallRiding;
+    private bool _isLeftWallRiding;
     private bool _canJumpCut = false;
     private float _jumpCutTimer = 0f;
     private int _remainingJumps;
@@ -51,6 +60,16 @@ public class MovementController : MonoBehaviour
         UpdatesCheck();
 
         #region Jump Button Verification
+        if (Input.GetButtonDown("Jump") && _isRightWallRiding)
+        {
+            WallJump(-1);
+            return;
+        }
+        if (Input.GetButtonDown("Jump") && _isLeftWallRiding)
+        {
+            WallJump(1);
+            return;
+        }
         if ((Input.GetButtonDown("Jump") || _jumpBufferTimer > 0) && (_isGrounded || _jumpCoyoteTimer > 0) && _rb.velocity.y <= 0)
         {
             _jumpCoyoteTimer = 0;
@@ -81,13 +100,38 @@ public class MovementController : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        Vector3 wireframe = new(groundCheckPoint.position.x, groundCheckPoint.position.y, 0);
+        Vector3 groundWireframe = new(groundCheckPoint.position.x, groundCheckPoint.position.y, 0);
+        Vector3 rightWallWireframe = new(rightWallCheckPoint.position.x, rightWallCheckPoint.position.y, 0);
+        Vector3 leftWallWireframe = new(leftWallCheckPoint.position.x, leftWallCheckPoint.position.y, 0);
         Gizmos.color = Color.red;
-        Gizmos.DrawWireCube(wireframe, groundCheckSize);
+        Gizmos.DrawWireCube(groundWireframe, groundCheckSize);
+        Gizmos.DrawWireCube(rightWallWireframe, rightWallCheckSize);
+        Gizmos.DrawWireCube(leftWallWireframe, leftWallCheckSize);
     }
 
     private void UpdatesCheck()
     {
+        //Left Wall
+        if (Physics2D.OverlapBox(leftWallCheckPoint.position, leftWallCheckSize, 0, groundLayer))
+        {
+            _isLeftWallRiding = true;
+            _remainingJumps = extraJumps;
+        }
+        else
+        {
+            _isLeftWallRiding = false;
+        }
+        //Right Wall
+        if (Physics2D.OverlapBox(rightWallCheckPoint.position, rightWallCheckSize, 0, groundLayer))
+        {
+            _isRightWallRiding = true;
+            _remainingJumps = extraJumps;
+        }
+        else
+        {
+            _isRightWallRiding = false;
+        }
+        //Ground
         if (Physics2D.OverlapBox(groundCheckPoint.position, groundCheckSize, 0, groundLayer))
         {
             _isGrounded = true;
@@ -95,7 +139,7 @@ public class MovementController : MonoBehaviour
         }
         else
         {
-            if(_isGrounded) _jumpCoyoteTimer = coyoteTime;
+            if (_isGrounded) _jumpCoyoteTimer = coyoteTime;
             _isGrounded = false;
         }
     }
@@ -134,6 +178,20 @@ public class MovementController : MonoBehaviour
     {
         _rb.AddForce(Vector2.down * _rb.velocity.y, ForceMode2D.Impulse);
         _canJumpCut = false;
+    }
+
+    private void WallJump(int dir)
+    {
+        Vector2 force = wallJumpForce;
+        force.x *= dir; //apply force in opposite direction of wall
+
+        if (Mathf.Sign(_rb.velocity.x) != Mathf.Sign(force.x))
+            force.x -= _rb.velocity.x;
+
+        if (_rb.velocity.y < 0) //checks whether player is falling, if so we subtract the velocity.y (counteracting force of gravity). This ensures the player always reaches our desired jump force or greater
+            force.y -= _rb.velocity.y;
+
+        _rb.AddForce(force, ForceMode2D.Impulse);
     }
     #endregion
 }
