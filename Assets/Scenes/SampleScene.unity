@@ -355,18 +355,18 @@ MonoBehaviour:
   rightWallCheckSize: {x: 0.1, y: 0.5}
   leftWallCheckPoint: {fileID: 1837251499}
   leftWallCheckSize: {x: 0.1, y: 0.5}
-  topSpeed: 12.4
-  acceleration: 2.43
-  handling: 4.04
-  breaking: 4.15
-  jumpForce: 8.7
-  extraJumpForce: 5
+  topSpeed: 15
+  acceleration: 7
+  handling: 15
+  breaking: 70
+  jumpForce: 15
+  extraJumpForce: 15
   extraJumps: 1
-  fallForce: 1.59
-  minimumTimeToJumpCut: 0.181
+  fallForce: 1.5
+  minimumTimeToJumpCut: 0.05
   jumpBuffer: 0.1
   coyoteTime: 0.1
-  wallJumpForce: {x: 5, y: 5}
+  wallJumpForce: {x: 100, y: 10}
 --- !u!1 &1071601295
 GameObject:
   m_ObjectHideFlags: 0

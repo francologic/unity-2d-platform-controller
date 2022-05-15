@@ -12,22 +12,22 @@ public class MovementController : MonoBehaviour
     public Vector2 leftWallCheckSize;
 
     [Header("Run")]
-    [Range(0.0f, 20.0f)]
+    [Range(0.0f, 100.0f)]
     public float topSpeed = 5f;
-    [Range(0.0f, 5.0f)]
+    [Range(0.0f, 100.0f)]
     public float acceleration = 1f;
-    [Range(0.0f, 5.0f)]
+    [Range(0.0f, 100.0f)]
     public float handling = 1f;
-    [Range(0.0f, 5.0f)]
+    [Range(0.0f, 100.0f)]
     public float breaking = 1f;
 
     [Header("Jump")]
-    [Range(0.0f, 10.0f)]
+    [Range(0.0f, 100.0f)]
     public float jumpForce = 5f;
-    [Range(0.0f, 10.0f)]
+    [Range(0.0f, 100.0f)]
     public float extraJumpForce = 5f;
     public int extraJumps = 1;
-    [Range(0.0f, 10.0f)]
+    [Range(0.0f, 100.0f)]
     public float fallForce = 5f;
     [Range(0.0f, 1.0f)]
     public float minimumTimeToJumpCut = .5f;
