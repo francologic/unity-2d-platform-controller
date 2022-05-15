@@ -27,6 +27,8 @@ public class MovementController : MonoBehaviour
     [Range(0.0f, 10.0f)]
     public float extraJumpForce = 5f;
     public int extraJumps = 1;
+    [Range(0.0f, 10.0f)]
+    public float fallForce = 5f;
     [Range(0.0f, 1.0f)]
     public float minimumTimeToJumpCut = .5f;
     [Range(0.0f, 1.0f)]
@@ -38,6 +40,7 @@ public class MovementController : MonoBehaviour
     public Vector2 wallJumpForce = new(1, 1);
 
     private Rigidbody2D _rb;
+    private float gravity;
     private bool _isGrounded;
     private bool _isRightWallRiding;
     private bool _isLeftWallRiding;
@@ -50,6 +53,7 @@ public class MovementController : MonoBehaviour
     private void Awake()
     {
         _rb = GetComponent<Rigidbody2D>();
+        gravity = _rb.gravityScale;
     }
 
     private void Update()
@@ -59,6 +63,14 @@ public class MovementController : MonoBehaviour
         _jumpCoyoteTimer -= Time.deltaTime;
         UpdatesCheck();
 
+        if (_rb.velocity.y < 0)
+        {
+            _rb.gravityScale = gravity * fallForce;
+        }
+        else
+        {
+            _rb.gravityScale = gravity;
+        }
         #region Jump Button Verification
         if (Input.GetButtonDown("Jump") && _isRightWallRiding)
         {
