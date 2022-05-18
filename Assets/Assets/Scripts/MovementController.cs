@@ -41,14 +41,18 @@ public class MovementController : StateMachine
 
     [HideInInspector]
     public Rigidbody2D rb;
+    [HideInInspector]
     private float gravity;
-    public bool _isRightWallRiding;
-    private bool _isLeftWallRiding;
+    [HideInInspector]
     public bool canJumpCut = false;
+    [HideInInspector]
     public float jumpCutTimer = 0f;
+    [HideInInspector]
     public int remainingJumps;
+    [HideInInspector]
     public float jumpBufferTimer;
-    private float _jumpCoyoteTimer;
+    [HideInInspector]
+    public float jumpCoyoteTimer;
 
     private void Awake()
     {
@@ -65,7 +69,7 @@ public class MovementController : StateMachine
             State.Jump();
         }
 
-        if (!Input.GetButton("Jump") && jumpCutTimer > 0)
+        if (!Input.GetButton("Jump") && jumpCutTimer <= 0)
         {
             State.JumpCut();
         }
@@ -78,12 +82,22 @@ public class MovementController : StateMachine
         Move(Input.GetAxis("Horizontal"));
     }
 
+    private void OnDrawGizmos()
+    {
+        Vector3 groundWireframe = new(groundCheckPoint.position.x, groundCheckPoint.position.y, 0);
+        Vector3 rightWallWireframe = new(rightWallCheckPoint.position.x, rightWallCheckPoint.position.y, 0);
+        Vector3 leftWallWireframe = new(leftWallCheckPoint.position.x, leftWallCheckPoint.position.y, 0);
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireCube(groundWireframe, groundCheckSize);
+        Gizmos.DrawWireCube(rightWallWireframe, rightWallCheckSize);
+        Gizmos.DrawWireCube(leftWallWireframe, leftWallCheckSize);
+    }
 
     private void Timers()
     {
         jumpBufferTimer -= Time.deltaTime;
         jumpCutTimer -= Time.deltaTime;
-        _jumpCoyoteTimer -= Time.deltaTime;
+        jumpCoyoteTimer -= Time.deltaTime;
     }
 
     private void FallForce()
@@ -98,18 +112,6 @@ public class MovementController : StateMachine
         }
     }
 
-
-    private void OnDrawGizmos()
-    {
-        Vector3 groundWireframe = new(groundCheckPoint.position.x, groundCheckPoint.position.y, 0);
-        Vector3 rightWallWireframe = new(rightWallCheckPoint.position.x, rightWallCheckPoint.position.y, 0);
-        Vector3 leftWallWireframe = new(leftWallCheckPoint.position.x, leftWallCheckPoint.position.y, 0);
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireCube(groundWireframe, groundCheckSize);
-        Gizmos.DrawWireCube(rightWallWireframe, rightWallCheckSize);
-        Gizmos.DrawWireCube(leftWallWireframe, leftWallCheckSize);
-    }
-
     private void ChangeState()
     {
         if (Physics2D.OverlapBox(groundCheckPoint.position, groundCheckSize, 0, groundLayer))
@@ -119,12 +121,12 @@ public class MovementController : StateMachine
         }
         if (Physics2D.OverlapBox(leftWallCheckPoint.position, leftWallCheckSize, 0, groundLayer))
         {
-            if (State is not WallRiding) SetPlayerState(new WallRiding(this));
+            if (State is not WallRiding) SetPlayerState(new WallRiding(this, "Left"));
             return;
         }
         if (Physics2D.OverlapBox(rightWallCheckPoint.position, rightWallCheckSize, 0, groundLayer))
         {
-            if (State is not WallRiding) SetPlayerState(new WallRiding(this));
+            if (State is not WallRiding) SetPlayerState(new WallRiding(this, "Right"));
             return;
         }
         if (State is not Airborne) SetPlayerState(new Airborne(this));

@@ -8,7 +8,6 @@ public abstract class PlayerState
     }
     public virtual void  Jump()
     {
-        MovementController.canJumpCut = true;
         return;
     }
 

@@ -2,15 +2,18 @@ using UnityEngine;
 
 public class WallRiding : PlayerState
 {
-    public WallRiding(MovementController movementController) : base(movementController)
-    {
 
+    public string wallSide = "";
+    public WallRiding(MovementController movementController, string side) : base(movementController)
+    {
+        MovementController.remainingJumps = MovementController.extraJumps;
+        wallSide = side;
     }
 
     public override void Jump()
     {
         Vector2 force = MovementController.wallJumpForce;
-        // if(MovementController.isRIghtWallRIding) force.x *= -1;
+        if (wallSide == "Right") force.x *= -1;
 
         if (Mathf.Sign(MovementController.rb.velocity.x) != Mathf.Sign(force.x))
             force.x -= MovementController.rb.velocity.x;
