@@ -1,7 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
 public abstract class PlayerState
 {
     protected MovementController MovementController;
@@ -10,8 +6,9 @@ public abstract class PlayerState
     {
         MovementController = movementController;
     }
-    public virtual void Jump()
+    public virtual void  Jump()
     {
+        MovementController.canJumpCut = true;
         return;
     }
 

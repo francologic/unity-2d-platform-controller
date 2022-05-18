@@ -42,13 +42,12 @@ public class MovementController : StateMachine
     [HideInInspector]
     public Rigidbody2D rb;
     private float gravity;
-    private bool _isGrounded;
     public bool _isRightWallRiding;
     private bool _isLeftWallRiding;
-    private bool _canJumpCut = false;
+    public bool canJumpCut = false;
     public float jumpCutTimer = 0f;
     public int remainingJumps;
-    private float _jumpBufferTimer;
+    public float jumpBufferTimer;
     private float _jumpCoyoteTimer;
 
     private void Awake()
@@ -59,11 +58,36 @@ public class MovementController : StateMachine
 
     private void Update()
     {
-        _jumpBufferTimer -= Time.deltaTime;
-        jumpCutTimer -= Time.deltaTime;
-        _jumpCoyoteTimer -= Time.deltaTime;
         ChangeState();
 
+        if (Input.GetButtonDown("Jump") || jumpBufferTimer > 0)
+        {
+            State.Jump();
+        }
+
+        if (!Input.GetButton("Jump") && jumpCutTimer > 0)
+        {
+            State.JumpCut();
+        }
+    }
+
+    private void FixedUpdate()
+    {
+        Timers();
+        FallForce();
+        Move(Input.GetAxis("Horizontal"));
+    }
+
+
+    private void Timers()
+    {
+        jumpBufferTimer -= Time.deltaTime;
+        jumpCutTimer -= Time.deltaTime;
+        _jumpCoyoteTimer -= Time.deltaTime;
+    }
+
+    private void FallForce()
+    {
         if (rb.velocity.y < 0)
         {
             rb.gravityScale = gravity * fallForce;
@@ -72,21 +96,8 @@ public class MovementController : StateMachine
         {
             rb.gravityScale = gravity;
         }
-
-        if(Input.GetButtonDown("Jump")){
-            State.Jump();
-        }
-
-        if(!Input.GetButton("Jump")){
-            State.JumpCut();
-        }
-
     }
 
-    private void FixedUpdate()
-    {
-        Move(Input.GetAxis("Horizontal"));
-    }
 
     private void OnDrawGizmos()
     {

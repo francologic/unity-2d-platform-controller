@@ -9,8 +9,12 @@ public class Airborne : PlayerState
 
     public override void Jump()
     {
-        if(MovementController.remainingJumps <= 0) return;
-        MovementController.remainingJumps --;
+        base.Jump();
+        if (MovementController.remainingJumps <= 0){
+            MovementController.jumpBufferTimer = MovementController.jumpBuffer;
+            return;
+        }
+        MovementController.remainingJumps--;
         float force = MovementController.jumpForce;
         if (MovementController.rb.velocity.y < 0) force -= MovementController.rb.velocity.y;
 
@@ -18,8 +22,11 @@ public class Airborne : PlayerState
         MovementController.jumpCutTimer = MovementController.minimumTimeToJumpCut;
     }
 
+
     public override void JumpCut()
     {
+        if(!MovementController.canJumpCut) return;
         MovementController.rb.AddForce(Vector2.down * MovementController.rb.velocity.y, ForceMode2D.Impulse);
+        MovementController.canJumpCut = false;
     }
 }
