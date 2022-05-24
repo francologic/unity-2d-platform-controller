@@ -12,6 +12,7 @@ public class WallRiding : PlayerState
 
     public override void Jump()
     {
+        if(MovementController.rb.velocity.x != 0) return;
         Vector2 force = MovementController.wallJumpForce;
         if (wallSide == "Right") force.x *= -1;
 

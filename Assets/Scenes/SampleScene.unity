@@ -8288,18 +8288,18 @@ MonoBehaviour:
   rightWallCheckSize: {x: 0.1, y: 0.5}
   leftWallCheckPoint: {fileID: 1837251499}
   leftWallCheckSize: {x: 0.1, y: 0.5}
-  topSpeed: 15
-  acceleration: 7
+  topSpeed: 10
+  acceleration: 6
   handling: 15
   breaking: 70
-  jumpForce: 15
-  extraJumpForce: 15
+  jumpForce: 10
+  extraJumpForce: 5
   extraJumps: 1
   fallForce: 1.5
   minimumTimeToJumpCut: 0.05
   jumpBuffer: 0.1
   coyoteTime: 0.1
-  wallJumpForce: {x: 30, y: 15}
+  wallJumpForce: {x: 50, y: 5}
   rb: {fileID: 0}
   canJumpCut: 0
   jumpCutTimer: 0
