@@ -8299,7 +8299,7 @@ MonoBehaviour:
   minimumTimeToJumpCut: 0.05
   jumpBuffer: 0.1
   coyoteTime: 0.1
-  wallJumpForce: {x: 50, y: 5}
+  wallJumpForce: {x: 35, y: 5}
   rb: {fileID: 0}
   canJumpCut: 0
   jumpCutTimer: 0
@@ -8422,7 +8422,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1837251498}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.29, y: 0, z: 0}
+  m_LocalPosition: {x: -0.218, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -8453,7 +8453,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2065619535}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.27, y: 0, z: 0}
+  m_LocalPosition: {x: 0.22, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
